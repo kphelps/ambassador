@@ -59,7 +59,7 @@ class V2Tracing(dict):
             "config": driver_config
         }
 
-    def resolve_collector_endpoint_version(version_string: String) -> Integer:
+    def resolve_collector_endpoint_version(version_string: str) -> int:
         {
             'http_json_v1': 0,
             'http_json': 1,

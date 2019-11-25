@@ -45,6 +45,11 @@ class V2Tracing(dict):
             if not 'trace_id_128bit' in driver_config:
                 driver_config['trace_id_128bit'] = True
 
+            if not 'collector_endpoint_version' in driver_config:
+                driver_config['collector_endpoint_version'] = 'http_json_v1'
+
+            driver_config['collector_endpoint_version'] = resolve_collector_endpoint_version(driver_config['collector_endpoint_version'])
+
         if name.lower() == 'envoy.tracers.datadog':
             if not driver_config.get('service_name'):
                 driver_config['service_name'] = 'ambassador'
@@ -53,6 +58,13 @@ class V2Tracing(dict):
             "name": name,
             "config": driver_config
         }
+
+    def resolve_collector_endpoint_version(version_string: String) -> Integer:
+        {
+            'http_json_v1': 0,
+            'http_json': 1,
+            'http_proto': 2
+        }[version_string]
 
     @classmethod
     def generate(cls, config: 'V2Config') -> None:

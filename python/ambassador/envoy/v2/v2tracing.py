@@ -44,11 +44,7 @@ class V2Tracing(dict):
             # Make 128-bit traceid the default
             if not 'trace_id_128bit' in driver_config:
                 driver_config['trace_id_128bit'] = True
-
-            if not 'collector_endpoint_version' in driver_config:
-                driver_config['collector_endpoint_version'] = 'http_json_v1'
-
-            driver_config['collector_endpoint_version'] = resolve_collector_endpoint_version(driver_config['collector_endpoint_version'])
+            self.rewrite_collector_endpoint_version(driver_config)
 
         if name.lower() == 'envoy.tracers.datadog':
             if not driver_config.get('service_name'):
@@ -59,12 +55,17 @@ class V2Tracing(dict):
             "config": driver_config
         }
 
-    def resolve_collector_endpoint_version(version_string: str) -> int:
-        {
-            'http_json_v1': 0,
-            'http_json': 1,
-            'http_proto': 2
-        }[version_string]
+    def rewrite_collector_endpoint_version(self, driver_config) -> None:
+            # Default to V1 Zipkin API
+            endpoint_version = driver_config['collector_endpoint_version']
+            if endpoint_version is None:
+                endpoint_version = 'http_json_v1'
+            envoy_endpoint_version = {
+                'http_json_v1': 0,
+                'http_json': 1,
+                'http_proto': 2
+            }[endpoint_version]
+            driver_config['collector_endpoint_version'] = envoy_endpoint_version
 
     @classmethod
     def generate(cls, config: 'V2Config') -> None:
